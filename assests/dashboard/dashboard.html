@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedPill - Crypto Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Dark Theme Variables */
+        :root {
+            --primary: #ff3e3e;
+            --primary-dark: #d63030;
+            --secondary: #1a1a1a;
+            --background: #0a0a0a;
+            --text: #ffffff;
+            --text-secondary: #aaaaaa;
+            --card-bg: #151515;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --sidebar-width: 250px;
+        }
+
+        /* Light Theme Variables */
+        .light-theme {
+            --background: #f4f4f4;
+            --text: #333333;
+            --text-secondary: #666666;
+            --card-bg: #ffffff;
+            --secondary: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Sidebar Styles */
+        .sidebar-nav {
+            width: var(--sidebar-width);
+            background-color: var(--secondary);
+            height: 100vh;
+            position: fixed;
+            padding: 20px 0;
+            overflow-y: auto;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), #ff7676);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s, color 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 62, 62, 0.1);
+            color: var(--text);
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-link.active {
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--secondary);
+            margin-bottom: 30px;
+            transition: border-color 0.3s;
+        }
+
+        .connect-wallet {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .connect-wallet:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .coin-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, auto)); /* Adjusted for shorter cards */
+            gap: 20px;
+        }
+
+        .coin-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px; /* Reduced padding */
+            transition: transform 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--secondary);
+            display: flex; /* Use flex to control height */
+            flex-direction: column;
+            justify-content: space-between; /* Distribute space vertically */
+        }
+
+        .coin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 62, 62, 0.1);
+        }
+
+        .coin-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px; /* Reduced margin */
+        }
+
+        .coin-image {
+            width: 30px; /* Reduced size */
+            height: 30px; /* Reduced size */
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .coin-name {
+            font-weight: 600;
+            font-size: 16px; /* Reduced size */
+        }
+
+        .coin-symbol {
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 6px; /* Reduced padding */
+            border-radius: 5px;
+            font-size: 10px; /* Reduced size */
+            font-weight: 700;
+        }
+
+        .coin-description {
+            color: var(--text-secondary);
+            font-size: 12px; /* Reduced size */
+            margin-bottom: 10px; /* Reduced margin */
+            line-height: 1.3; /* Adjusted line height */
+            overflow: hidden; /* Hide overflowing text */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
+        }
+
+        .coin-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px; /* Reduced margin */
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 10px; /* Reduced size */
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-weight: 700;
+            margin-top: 3px; /* Reduced margin */
+            font-size: 12px; /* Reduced size */
+        }
+
+        .buy-button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px; /* Reduced padding */
+            border-radius: 5px;
+            font-weight: 600;
+            margin-top: 10px; /* Reduced margin */
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px; /* Reduced size */
+        }
+
+        .buy-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .sidebar {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            height: fit-content;
+            border: 1px solid var(--secondary);
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        .sidebar-title {
+            font-size: 18px; /* Reduced size */
+            font-weight: 600;
+            margin-bottom: 15px; /* Reduced margin */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-title svg {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 10px; /* Reduced margin */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 3px; /* Reduced margin */
+            font-size: 12px; /* Reduced size */
+            color: var(--text-secondary);
+        }
+
+        .form-group input, .form-group textarea, .form-group input[type="file"] {
+            width: 100%;
+            padding: 8px; /* Reduced padding */
+            border-radius: 5px;
+            border: 1px solid var(--secondary);
+            background-color: var(--background);
+            color: var(--text);
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+            font-size: 12px; /* Reduced size */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px; /* Reduced height */
+        }
+
+        .add-button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px; /* Reduced padding */
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px; /* Reduced size */
+        }
+
+        .add-button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .price-change {
+            position: absolute;
+            top: 10px; /* Reduced position */
+            right: 10px; /* Reduced position */
+            font-weight: 700;
+            font-size: 12px; /* Reduced size */
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        .trending-coins {
+            margin-top: 20px; /* Reduced margin */
+        }
+
+        .trending-title {
+            font-size: 16px; /* Reduced size */
+            font-weight: 600;
+            margin-bottom: 10px; /* Reduced margin */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trending-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* Reduced gap */
+        }
+
+        .trending-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px; /* Reduced padding */
+            background-color: var(--card-bg);
+            border-radius: 5px;
+            transition: all 0.3s, background-color 0.3s, color 0.3s;
+            cursor: pointer;
+        }
+
+        .trending-item:hover {
+            background-color: var(--secondary);
+        }
+
+        .trending-info {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Reduced gap */
+        }
+
+        .trending-image {
+            width: 25px; /* Reduced size */
+            height: 25px; /* Reduced size */
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .trending-symbol {
+            font-weight: 600;
+            font-size: 12px; /* Reduced size */
+        }
+
+        .trending-price {
+            font-weight: 700;
+            font-size: 12px; /* Reduced size */
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Settings Page */
+        .settings-form {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .profile-picture {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px; /* Reduced margin */
+        }
+
+        .profile-picture img {
+            width: 60px; /* Reduced size */
+            height: 60px; /* Reduced size */
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px; /* Reduced margin */
+            border: 2px solid var(--primary);
+        }
+
+        .profile-picture input[type="file"] {
+            display: none; /* Hide the actual file input */
+        }
+
+        .profile-picture .upload-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px; /* Reduced padding */
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px; /* Reduced size */
+        }
+
+        .profile-picture .upload-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Transactions Page */
+        .transaction-list {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px; /* Reduced padding */
+            max-width: 800px;
+            margin: 0 auto;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0; /* Reduced vertical padding */
+            border-bottom: 1px solid var(--secondary);
+            transition: border-color 0.3s;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduced gap */
+        }
+
+        .transaction-icon {
+            width: 30px; /* Reduced size */
+            height: 30px; /* Reduced size */
+            border-radius: 50%;
+            background-color: rgba(255, 62, 62, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 14px; /* Reduced size */
+        }
+
+        .transaction-details h4 {
+            margin-bottom: 3px; /* Reduced margin */
+            font-size: 14px; /* Reduced size */
+        }
+
+        .transaction-details p {
+            color: var(--text-secondary);
+            font-size: 11px; /* Reduced size */
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 12px; /* Reduced size */
+        }
+
+        /* My Coins Page */
+        .my-coins-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, auto)); /* Adjusted */
+            gap: 20px;
+        }
+
+        .my-coin-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px; /* Reduced padding */
+            border: 1px solid var(--secondary);
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        .my-coin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px; /* Reduced margin */
+        }
+
+        .my-coin-name {
+            font-weight: 600;
+            font-size: 16px; /* Reduced size */
+        }
+
+        .my-coin-symbol {
+            color: var(--text-secondary);
+            font-size: 12px; /* Reduced size */
+        }
+
+        .my-coin-actions button {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 4px 8px; /* Reduced padding */
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+            transition: all 0.3s;
+            font-size: 10px; /* Reduced size */
+        }
+
+        .my-coin-actions button:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .my-coin-details p {
+            color: var(--text-secondary);
+            font-size: 12px; /* Reduced size */
+            margin-bottom: 8px; /* Reduced margin */
+        }
+
+        /* Wallets Page */
+        .wallets-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, auto));
+            gap: 20px;
+        }
+
+        .wallet-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px; /* Reduced padding */
+            border: 1px solid var(--secondary);
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        .wallet-header {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduced gap */
+            margin-bottom: 10px; /* Reduced margin */
+        }
+
+        .wallet-icon {
+            width: 40px; /* Reduced size */
+            height: 40px; /* Reduced size */
+            border-radius: 50%;
+            background-color: rgba(255, 62, 62, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px; /* Reduced size */
+            color: var(--primary);
+        }
+
+        .wallet-info h3 {
+            font-size: 16px; /* Reduced size */
+            margin-bottom: 2px; /* Reduced margin */
+        }
+
+        .wallet-info p {
+            font-size: 12px; /* Reduced size */
+            color: var(--text-secondary);
+        }
+
+        .wallet-address {
+            background-color: var(--secondary);
+            padding: 8px; /* Reduced padding */
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin-top: 8px; /* Reduced margin */
+            font-size: 10px; /* Reduced size */
+        }
+
+        .connect-wallet-btn {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px; /* Reduced padding */
+            border-radius: 5px;
+            font-weight: 600;
+            margin-top: 10px; /* Reduced margin */
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px; /* Reduced size */
+        }
+
+        .connect-wallet-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Toggle Switch for Light/Dark Mode */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle input[type="checkbox"] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+        }
+
+        .theme-toggle label {
+            cursor: pointer;
+            width: 40px;
+            height: 20px;
+            background: var(--text-secondary);
+            display: block;
+            border-radius: 10px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle label:after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle input:checked + label {
+            background: var(--primary);
+        }
+
+        .theme-toggle input:checked + label:after {
+            left: calc(100% - 2px);
+            transform: translateX(-100%);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-nav {
+                width: 70px;
+                overflow-x: hidden;
+            }
+
+            .sidebar-logo h2, .nav-link span {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+            }
+
+            .nav-link i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+                padding: 15px; /* Adjusted padding for smaller screens */
+            }
+
+            header h1 {
+                font-size: 1.5em; /* Adjusted font size */
+            }
+
+            .connect-wallet {
+                padding: 8px 15px; /* Adjusted padding */
+                font-size: 14px; /* Adjusted font size */
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                padding: 15px; /* Adjusted padding */
+                margin-top: 20px; /* Added margin */
+            }
+
+            .sidebar-title {
+                font-size: 1.3em; /* Adjusted font size */
+            }
+
+            .coin-list {
+                grid-template-columns: repeat(auto-fill, minmax(200px, auto)); /* Adjusted minmax */
+            }
+        }
+    </style>
+</head>
+<body class="">
+    <div class="theme-toggle">
+        <i class="fas fa-sun"></i>
+        <input type="checkbox" id="themeSwitcher">
+        <label for="themeSwitcher"></label>
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-logo">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmYzZTNlIiBkPSJNMjU2IDhDMTE5IDggOCAxMTkgOCAyNTZzMTExIDI0OCAyNDggMjQ4IDI0OC0xMTEgMjQ4LTI0OFMzOTMgOCAyNTYgOHptMCA0NDhjLTExMC41IDAtMjAwLTg5LjUtMjAwLTIwMFMxNDUuNSA1NiAyNTYgNTZzMjAwIDg5LjUgMjAwIDIwMC04OS41IDIwMC0yMDAgMjAwem0xMDEuOC0yNjEuN2wtODQuOS02MS43Yy0zLjEtMi4yLTcuMi0yLjItMTAuMyAwbC04NC45IDYxLjdjLTMuOSAyLjgtNC4xIDguMi0uNCAxMS4ybDQwLjkgMjkuOWMtMy4xIDIuMi0zLjggNi4yLTEuNiA5LjNsMTYuMyAyMi44YzIuMiAzLjEgNi4yIDMuOCA5LjMgMS42bDM4LjEtMjcuNGMzLjEtMi4yIDcuMi0yLjIgMTAuMyAwbDM4LjEgMjcuNGMzLjEgMi4yIDcuMiAxLjYgOS4zLTEuNmwxNi4zLTIyLjhjMi4yLTMuMSAxLjYtNy4yLTEuNi05LjNsLTQwLjktMjkuOWMtMy42LTIuOS0zLjUtOC4zLjQtMTEuMnoiLz48L3N2Zz4=" alt="Red Pill Logo">
+            <h2>RedPill</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="my-coins">
+                    <i class="fas fa-coins"></i>
+                    <span>My Coins</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="transactions">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="wallets">
+                    <i class="fas fa-wallet"></i>
+                    <span>Wallets</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <section id="dashboard" class="content-section active">
+                <header>
+                    <h1>Market Overview</h1>
+                    <button class="connect-wallet" id="connectWallet">Connect Wallet</button>
+                </header>
+
+                <div class="dashboard">
+                    <div class="coin-list" id="coinList">
+                        </div>
+
+                    <div class="sidebar">
+                        <h2 class="sidebar-title">
+                            <i class="fas fa-plus-circle"></i>
+                            Add New Coin
+                        </h2>
+                        <div class="form-group">
+                            <label for="coinName">Coin Name</label>
+                            <input type="text" id="coinName" placeholder="e.g. Bitcoin">
+                        </div>
+                        <div class="form-group">
+                            <label for="coinSymbol">Ticker Symbol</label>
+                            <input type="text" id="coinSymbol" placeholder="e.g. BTC">
+                        </div>
+                        <div class="form-group">
+                            <label for="coinDescription">Description</label>
+                            <textarea id="coinDescription" placeholder="Describe your coin..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="initialSupply">Initial Supply</label>
+                            <input type="number" id="initialSupply" placeholder="e.g. 21000000">
+                        </div>
+                        <div class="form-group">
+                            <label for="coinImageUpload">Coin Image</label>
+                            <input type="file" id="coinImageUpload" accept="image/*">
+                        </div>
+                        <button class="add-button" id="addCoin">Add Coin</button>
+
+                        <div class="trending-coins">
+                            <h3 class="trending-title">
+                                <i class="fas fa-fire"></i>
+                                Trending
+                            </h3>
+                            <div class="trending-list" id="trendingList">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="my-coins" class="content-section">
+                <header>
+                    <h1>My Created Coins</h1>
+                    <button class="connect-wallet" id="connectWallet2">Connect Wallet</button>
+                </header>
+
+                <div class="my-coins-list" id="myCoinsList">
+                    </div>
+            </section>
+
+            <section id="transactions" class="content-section">
+                <header>
+                    <h1>Transaction History</h1>
+                    <button class="connect-wallet" id="connectWallet3">Connect Wallet</button>
+                </header>
+
+                <div class="transaction-list">
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Received RPC</h4>
+                                <p>From: 0x7f...3a4b • 2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount positive">+250 RPC</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Sent ETH</h4>
+                                <p>To: 0x5d...8f2e • 1 day ago</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount negative">-0.5 ETH</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Swap ETH to BTC</h4>
+                                <p>Uniswap • 3 days ago</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount">0.025 BTC</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Created MXT Coin</h4>
+                                <p>RedPill Platform • 1 week ago</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount positive">+50,000,000 MXT</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="wallets" class="content-section">
+                <header>
+                    <h1>Connected Wallets</h1>
+                    <button class="connect-wallet" id="connectWallet4">Connect Wallet</button>
+                </header>
+
+                <div class="wallets-list">
+                    <div class="wallet-card">
+                        <div class="wallet-header">
+                            <div class="wallet-icon">
+                                <i class="fab fa-ethereum"></i>
+                            </div>
+                            <div class="wallet-info">
+                                <h3>MetaMask</h3>
+                                <p>Ethereum Wallet</p>
+                            </div>
+                        </div>
+                        <div class="wallet-address" id="walletAddress">Not connected</div>
+                        <button class="connect-wallet-btn" id="connectMainWallet">Connect MetaMask</button>
+                    </div>
+                    <div class="wallet-card">
+                        <div class="wallet-header">
+                            <div class="wallet-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="wallet-info">
+                                <h3>WalletConnect</h3>
+                                <p>Multi-chain Wallet</p>
+                            </div>
+                        </div>
+                        <div class="wallet-address">Not connected</div>
+                        <button class="connect-wallet-btn">Connect WalletConnect</button>
+                    </div>
+                    <div class="wallet-card">
+                        <div class="wallet-header">
+                            <div class="wallet-icon">
+                                <i class="fab fa-bitcoin"></i>
+                            </div>
+                            <div class="wallet-info">
+                                <h3>Phantom</h3>
+                                <p>Solana Wallet</p>
+                            </div>
+                        </div>
+                        <div class="wallet-address">Not connected</div>
+                        <button class="connect-wallet-btn">Connect Phantom</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="settings" class="content-section">
+                <header>
+                    <h1>Account Settings</h1>
+                </header>
+
+                <div class="settings-form">
+                    <div class="profile-picture">
+                        <img id="profileImage" src="https://via.placeholder.com/60" alt="Profile Picture">
+                        <div>
+                            <label for="profileUpload" class="upload-btn">Upload New</label>
+                            <input type="file" id="profileUpload" accept="image/*">
+                            <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px;">PNG or JPG, max 2MB</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" value="RedPillUser">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" value="user@redpill.io">
+                    </div>
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" placeholder="Tell us about yourself...">Passionate about decentralized technologies and the future of finance.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="notifications">Notifications</label>
+                        <div>
+                            <input type="checkbox" id="notifications" name="notifications" checked>
+                            <label for="notifications" style="display: inline; font-size: 1em; color: var(--text);">Receive email notifications</label>
+                        </div>
+                    </div>
+                    <button class="add-button">Save Changes</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const themeSwitcher = document.getElementById('themeSwitcher');
+            const body = document.body;
+            const connectWalletButton = document.getElementById('connectWallet');
+            const walletAddressDisplay = document.getElementById('walletAddress');
+            const connectMainWalletButton = document.getElementById('connectMainWallet');
+            const coinListContainer = document.getElementById('coinList');
+            const addCoinButton = document.getElementById('addCoin');
+            const coinNameInput = document.getElementById('coinName');
+            const coinSymbolInput = document.getElementById('coinSymbol');
+            const coinDescriptionInput = document.getElementById('coinDescription');
+            const initialSupplyInput = document.getElementById('initialSupply');
+            const coinImageUploadInput = document.getElementById('coinImageUpload');
+            const myCoinsListContainer = document.getElementById('myCoinsList');
+            const trendingListContainer = document.getElementById('trendingList');
+            const profileUploadInput = document.getElementById('profileUpload');
+            const profileImageDisplay = document.getElementById('profileImage');
+
+            // Sample Coin Data (replace with API calls later)
+            const initialCoinsData = [
+                {
+                    name: 'Bitcoin',
+                    symbol: 'BTC',
+                    image: 'https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png?1696501400',
+                    price: '$45,000',
+                    change: '+2.5%',
+                    description: 'The original cryptocurrency.',
+                    marketCap: '$800B',
+                    volume: '$30B'
+                },
+                {
+                    name: 'Ethereum',
+                    symbol: 'ETH',
+                    image: 'https://assets.coingecko.com/coins/images/279/thumb/ethereum.png?1696501628',
+                    price: '$2,400',
+                    change: '-0.8%',
+                    description: 'A decentralized platform for smart contracts.',
+                    marketCap: '$280B',
+                    volume: '$15B'
+                },
+                {
+                    name: 'RedPill Coin',
+                    symbol: 'RPC',
+                    image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmYzZTNlIiBkPSJNMjU2IDhDMTE5IDggOCAxMTkgOCAyNTZzMTExIDI0OCAyNDggMjQ4IDI0OC0xMTEgMjQ4LTI0OFMzOTMgOCAyNTYgOHptMCA0NDhjLTExMC41IDAtMjAwLTg5LjUtMjAwLTIwMFMxNDUuNSA1NiAyNTYgNTZzMjAwIDg5LjUgMjAwIDIwMC04OS41IDIwMC0yMDAgMjAwem0xMDEuOC0yNjEuN2wtODQuOS02MS43Yy0zLjEtMi4yLTcuMi0yLjItMTAuMyAwbC04NC45IDYxLjdjLTMuOSAyLjgtNC4xIDguMi0uNCAxMS4ybDQwLjkgMjkuOWMtMy4xIDIuMi0zLjggNi4yLTEuNiA5LjNsMTYuMyAyMi44YzIuMiAzLjEgNi4yIDMuOCA5LjMgMS42bDM4LjEtMjcuNGMzLjEtMi4yIDcuMi0yLjIgMTAuMyAwbDM4LjEgMjcuNGMzLjEgMi4yIDcuMiAxLjYgOS4zLTEuNmwxNi4zLTIyLjhjMi4yLTMuMSAxLjYtNy4yLTEuNi05LjNsLTQwLjktMjkuOWMtMy42LTIuOS0zLjUtOC4zLjQtMTEuMnoiLz48L3N2Zz4=',
+                    price: '$0.05',
+                    change: '+5.1%',
+                    description: 'The native coin of the RedPill ecosystem.',
+                    marketCap: '$5M',
+                    volume: '$100K'
+                },
+                {
+                    name: 'Solana',
+                    symbol: 'SOL',
+                    image: 'https://assets.coingecko.com/coins/images/4128/thumb/solana.png?1696503260',
+                    price: '$95.50',
+                    change: '+1.2%',
+                    description: 'A fast, high-performance blockchain.',
+                    marketCap: '$40B',
+                    volume: '$2B'
+                },
+                {
+                    name: 'Cardano',
+                    symbol: 'ADA',
+                    image: 'https://assets.coingecko.com/coins/images/975/thumb/cardano.png?1696502326',
+                    price: '$0.60',
+                    change: '-1.5%',
+                    description: 'A third-generation blockchain platform.',
+                    marketCap: '$21B',
+                    volume: '$500M'
+                },
+            ];
+
+            const trendingCoinsData = [
+                { name: 'NewToken1', symbol: 'NT1', image: 'https://via.placeholder.com/25/FF0000/FFFFFF?Text=NT1', price: '$1.20' },
+                { name: 'FutureCoinX', symbol: 'FCX', image: 'https://via.placeholder.com/25/00FF00/FFFFFF?Text=FCX', price: '$55.80' },
+                { name: 'AlphaCoin', symbol: 'ALP', image: 'https://via.placeholder.com/25/0000FF/FFFFFF?Text=ALP', price: '$102.50' },
+            ];
+
+            let marketCoins = [...initialCoinsData];
+            let myCreatedCoins = [];
+
+            function displayCoins(coins, container) {
+                container.innerHTML = '';
+                coins.forEach(coin => {
+                    const card = document.createElement('div');
+                    card.classList.add('coin-card');
+                    const changeClass = coin.change ? (coin.change.startsWith('+') ? 'positive' : 'negative') : '';
+                    card.innerHTML = `
+                        <div class="coin-header">
+                            <img src="${coin.image}" alt="${coin.name}" class="coin-image">
+                            <div>
+                                <h3 class="coin-name">${coin.name}</h3>
+                                <span class="coin-symbol">${coin.symbol}</span>
+                            </div>
+                        </div>
+                        <p class="coin-description">${coin.description || ''}</p>
+                        <div class="coin-stats">
+                            <div class="stat">
+                                <div class="stat-label">Price</div>
+                                <div class="stat-value">${coin.price || 'N/A'}</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Market Cap</div>
+                                <div class="stat-value">${coin.marketCap || 'N/A'}</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Volume (24h)</div>
+                                <div class="stat-value">${coin.volume || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <button class="buy-button">Buy ${coin.symbol}</button>
+                        ${coin.change ? `<span class="price-change ${changeClass}">${coin.change}</span>` : ''}
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            function displayMyCoins() {
+                myCoinsListContainer.innerHTML = '';
+                if (myCreatedCoins.length === 0) {
+                    myCoinsListContainer.innerHTML = '<p>No coins created yet.</p>';
+                    return;
+                }
+                myCreatedCoins.forEach(coin => {
+                    const card = document.createElement('div');
+                    card.classList.add('my-coin-card');
+                    card.innerHTML = `
+                        <div class="my-coin-header">
+                            <h3 class="my-coin-name">${coin.name}</h3>
+                            <span class="my-coin-symbol">${coin.symbol}</span>
+                            <div class="my-coin-actions">
+                                <button class="edit-button">Edit</button>
+                                <button class="delete-button" data-symbol="${coin.symbol}">Delete</button>
+                            </div>
+                        </div>
+                        <div class="my-coin-details">
+                            <p>Description: ${coin.description || 'No description provided.'}</p>
+                            <p>Initial Supply: ${coin.initialSupply || 'N/A'}</p>
+                            <img src="${coin.image}" alt="${coin.name}" style="width: 50px; height: 50px; margin-top: 10px;">
+                        </div>
+                    `;
+                    myCoinsListContainer.appendChild(card);
+                });
+
+                // Add event listeners for delete buttons
+                const deleteButtons = myCoinsListContainer.querySelectorAll('.delete-button');
+                deleteButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const symbolToDelete = this.dataset.symbol;
+                        myCreatedCoins = myCreatedCoins.filter(coin => coin.symbol !== symbolToDelete);
+                        marketCoins = marketCoins.filter(coin => coin.symbol !== symbolToDelete);
+                        displayMyCoins();
+                        displayCoins(marketCoins, coinListContainer);
+                    });
+                });
+            }
+
+            function displayTrendingCoins(coins, container) {
+                container.innerHTML = '';
+                coins.forEach(coin => {
+                    const item = document.createElement('div');
+                    item.classList.add('trending-item');
+                    item.innerHTML = `
+                        <div class="trending-info">
+                            <img src="${coin.image}" alt="${coin.name}" class="trending-image">
+                            <span class="trending-symbol">${coin.symbol}</span>
+                        </div>
+                        <span class="trending-price">${coin.price}</span>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            displayCoins(marketCoins, coinListContainer);
+            displayTrendingCoins(trendingCoinsData, trendingListContainer);
+            displayMyCoins();
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    this.classList.add('active');
+                    const sectionId = this.dataset.section;
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+
+            themeSwitcher.addEventListener('change', function() {
+                body.classList.toggle('light-theme');
+            });
+
+            if (connectWalletButton) {
+                connectWalletButton.addEventListener('click', function() {
+                    alert('Connecting wallet...');
+                    if (walletAddressDisplay) {
+                        walletAddressDisplay.textContent = '0x123abc456def789ghi012jkl345mno678pqr9'; // Sample address
+                    }
+                    if (connectMainWalletButton) {
+                        connectMainWalletButton.textContent = 'Connected';
+                        connectMainWalletButton.disabled = true;
+                    }
+                });
+            }
+
+            if (connectMainWalletButton) {
+                connectMainWalletButton.addEventListener('click', function() {
+                    alert('Connecting MetaMask...');
+                    if (walletAddressDisplay) {
+                        walletAddressDisplay.textContent = '0x123abc456def789ghi012jkl345mno678pqr9'; // Sample address
+                    }
+                    connectMainWalletButton.textContent = 'Connected';
+                    connectMainWalletButton.disabled = true;
+                });
+            }
+
+            if (addCoinButton) {
+                addCoinButton.addEventListener('click', function() {
+                    const name = coinNameInput.value.trim();
+                    const symbol = coinSymbolInput.value.trim().toUpperCase();
+                    const description = coinDescriptionInput.value.trim();
+                    const initialSupply = initialSupplyInput.value.trim();
+                    const imageFile = coinImageUploadInput.files[0];
+
+                    if (name && symbol && imageFile) {
+                        const reader = new FileReader();
+                        reader.onloadend = function() {
+                            const newCoin = { name, symbol, description, initialSupply, image: reader.result, price: '$0.00', change: '0%', marketCap: '$0', volume: '$0' };
+                            myCreatedCoins.push(newCoin);
+                            marketCoins.unshift(newCoin); // Add to the beginning of market coins
+                            displayMyCoins();
+                            displayCoins(marketCoins, coinListContainer);
+                            coinNameInput.value = '';
+                            coinSymbolInput.value = '';
+                            coinDescriptionInput.value = '';
+                            initialSupplyInput.value = '';
+                            coinImageUploadInput.value = '';
+                            alert(`${name} (${symbol}) added to your created coins and the market overview.`);
+                        }
+                        reader.readAsDataURL(imageFile);
+                    } else if (name && symbol) {
+                        const newCoin = { name, symbol, description, initialSupply, image: 'https://via.placeholder.com/30/cccccc/000000?Text=' + symbol, price: '$0.00', change: '0%', marketCap: '$0', volume: '$0' };
+                        myCreatedCoins.push(newCoin);
+                        marketCoins.unshift(newCoin); // Add to the beginning of market coins
+                        displayMyCoins();
+                        displayCoins(marketCoins, coinListContainer);
+                        coinNameInput.value = '';
+                        coinSymbolInput.value = '';
+                        coinDescriptionInput.value = '';
+                        initialSupplyInput.value = '';
+                        coinImageUploadInput.value = '';
+                        alert(`${name} (${symbol}) added to your created coins and the market overview (placeholder image).`);
+                    } else {
+                        alert('Coin Name and Ticker Symbol are required.');
+                    }
+                });
+            }
+
+            if (profileUploadInput) {
+                profileUploadInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = function() {
+                            profileImageDisplay.src = reader.result;
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

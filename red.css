@@ -1,0 +1,365 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: white;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background: #0d0d0d;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: transparent;
+}
+
+.navbar-left {
+    flex: 1;
+}
+
+.navbar-right {
+    display: flex;
+    justify-content: flex-end;
+    gap: 25px;
+    margin-right: 90px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    font-size: 25px;
+    font-weight: bold;
+    position: relative;
+    transition: color 0.3s ease-in-out;
+}
+
+.navbar a::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: red;
+    bottom: -4px;
+    left: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease-in-out;
+}
+
+.navbar a:hover {
+    color: red;
+}
+
+.navbar a:hover::after {
+    transform: scaleX(1);
+}
+
+.small-logo {
+    width: 35px;
+    height: auto;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+    opacity: 0;
+    animation: fadeIn 1.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    max-width: 900px;
+}
+
+.transparent-image {
+    width: 300px;
+    height: auto;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+.title {
+    font-size: 48px;
+    font-weight: bold;
+    color: red;
+    text-align: left;
+}
+
+.description {
+    font-size: 18px;
+    max-width: 400px;
+    text-align: left;
+}
+
+.text-link {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    position: relative;
+    transition: color 0.3s ease-in-out;
+}
+
+.text-link::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background-color: red;
+    bottom: -4px;
+    left: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease-in-out;
+}
+
+.text-link:hover {
+    color: red;
+}
+
+.text-link:hover::after {
+    transform: scaleX(1);
+}
+
+.info-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 80%;
+    background-color: #000000;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.info-box.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, -50%);
+}
+
+.exit-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: red;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s ease-in-out;
+}
+
+.exit-button:hover {
+    color: white;
+}
+
+.steps-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 50px;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 20px;
+}
+
+.step-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 170px;
+    height: 170px;
+    text-align: center;
+    padding: 20px;
+    border-radius: 15px;
+    background: transparent;
+    border: 2px solid rgba(255, 0, 0, 0.5);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+}
+
+.step-box img {
+    width: 90px;
+    height: auto;
+    opacity: 0.7;
+    margin-bottom: 15px;
+}
+
+.step-box div {
+    font-size: 24px;
+    color: white;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .steps-container {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .steps-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.1); 
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 100;
+    backdrop-filter: blur(10px); 
+}
+
+.footer p {
+    margin: 0;
+}
+/* Theme switch styling */
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: red;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: black;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Light mode styles */
+body.light-mode {
+    background-color: white;
+    color: black;
+}
+
+body.light-mode canvas {
+    background: #f0f0f0;
+}
+
+body.light-mode .navbar a {
+    color: black;
+}
+
+body.light-mode .navbar a:hover {
+    color: red;
+}
+
+body.light-mode .text-link {
+    color: black;
+}
+
+body.light-mode .text-link:hover {
+    color: red;
+}
+
+body.light-mode .info-box {
+    background-color: #ffffff;
+    color: black;
+}
+
+body.light-mode .step-box {
+    border-color: rgba(255, 0, 0, 0.5);
+    background: transparent;
+    color: black;
+}
+
+body.light-mode .footer {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: black;
+}
+
